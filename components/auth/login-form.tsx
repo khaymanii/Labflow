@@ -9,19 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const DEMO_ACCOUNTS = [
-  { role: "Admin", email: "admin@labflow.test", name: "Amina Bello" },
-  { role: "Scientist", email: "scientist@labflow.test", name: "Chinedu Okafor" },
-  { role: "Intern", email: "intern@labflow.test", name: "Tunde Adeyemi" },
-  { role: "Dispatch", email: "dispatch@labflow.test", name: "Ngozi Eze" },
-];
-
-const DEMO_PASSWORD = "Password123!";
-
 export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@labflow.test");
-  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -113,34 +104,6 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           {loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
-
-      <div className="rounded-lg border bg-slate-50/70 p-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Demo accounts (seed data)
-        </p>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          {DEMO_ACCOUNTS.map((account) => (
-            <button
-              key={account.email}
-              type="button"
-              onClick={() => {
-                setEmail(account.email);
-                setPassword(DEMO_PASSWORD);
-                setError(null);
-              }}
-              className="rounded-md border bg-white px-2.5 py-2 text-left transition-colors hover:border-primary/40 hover:bg-primary/5"
-            >
-              <span className="block text-xs font-semibold">{account.role}</span>
-              <span className="block truncate text-[11px] text-muted-foreground">
-                {account.email}
-              </span>
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          Password for all demo accounts: <span className="font-mono">{DEMO_PASSWORD}</span>
-        </p>
-      </div>
     </div>
   );
 }

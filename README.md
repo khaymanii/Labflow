@@ -2,11 +2,11 @@
 
 LabFlow is a laboratory workflow tracking MVP for medical laboratory interns and staff. It replaces manual logbook tracking with a traceable digital workflow from sample registration through processing, result production, dispatch handover and patient collection.
 
-> **Important:** LabFlow is a workflow tracking tool only. It is **not** a diagnostic or clinical decision-support system. Do not store actual clinical results or unnecessary patient data in this prototype. All seed data is fictional.
+> **Important:** LabFlow is a workflow tracking tool only. It is **not** a diagnostic or clinical decision-support system. Do not store actual clinical results or unnecessary patient data in this prototype. The database starts empty except for reference departments and the administrator you configure.
 
 ## MVP features
 
-- Email/password authentication with server-side sessions.
+- Email/password authentication with signed sessions and server-side role checks.
 - Role-based access for interns, scientists, dispatch staff and administrators.
 - Dashboard with live workload metrics and recent activity.
 - Sample registration with automatically generated accession numbers.
@@ -45,11 +45,8 @@ LabFlow is a laboratory workflow tracking MVP for medical laboratory interns and
 # 1. Install dependencies
 npm install
 
-# 2. Create your local environment file
-#    Windows PowerShell:
-Copy-Item .env.example .env
-#    macOS/Linux:
-#    cp .env.example .env
+# 2. Create a .env file in the project root (see the variables below)
+#    DATABASE_URL, AUTH_SECRET, AUTH_TRUST_HOST, ADMIN_EMAIL, ADMIN_PASSWORD
 
 # 3. Generate an Auth.js secret and paste it into AUTH_SECRET in .env
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
@@ -61,20 +58,32 @@ docker compose up -d
 npx prisma generate
 npx prisma migrate deploy
 
-# 6. Load fictional seed data
+# 6. Create departments and the first administrator
+#    (uses the ADMIN_* values in .env)
 npm run db:seed
 
 # 7. Start the development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and sign in with one of the demo accounts below.
+Open [http://localhost:3000](http://localhost:3000) and sign in with the administrator account from your `.env`.
 
 If you do not use Docker, create a PostgreSQL database and set `DATABASE_URL` in `.env` to your connection string, then continue from step 5.
 
 ## Environment variables
 
-Copy `.env.example` to `.env`.
+Create a `.env` file in the project root:
+
+```dotenv
+DATABASE_URL="postgresql://labflow:labflow@localhost:5432/labflow?schema=public"
+AUTH_SECRET="paste-a-generated-secret-here"
+AUTH_TRUST_HOST="true"
+NEXT_PUBLIC_APP_NAME="LabFlow"
+
+ADMIN_NAME="Laboratory Administrator"
+ADMIN_EMAIL="admin@labflow.local"
+ADMIN_PASSWORD="ChangeMe123!"
+```
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
@@ -82,6 +91,9 @@ Copy `.env.example` to `.env`.
 | `AUTH_SECRET` | Yes | Secret used to sign Auth.js sessions. Use a long random value. |
 | `AUTH_TRUST_HOST` | Local/proxy | Set to `true` when running locally or behind a trusted proxy. |
 | `NEXT_PUBLIC_APP_NAME` | No | Optional display name. Defaults to LabFlow. |
+| `ADMIN_NAME` | No | Name for the first administrator. Defaults to `Laboratory Administrator`. |
+| `ADMIN_EMAIL` | No | Email for the first administrator. Defaults to `admin@labflow.local`. |
+| `ADMIN_PASSWORD` | No | Password for the first administrator. Change it before the first seed. |
 
 The default Docker Compose database is:
 
@@ -89,20 +101,26 @@ The default Docker Compose database is:
 postgresql://labflow:labflow@localhost:5432/labflow?schema=public
 ```
 
-## Demo accounts
+## First sign-in
 
-All seed accounts use the password **`Password123!`**.
+`npm run db:seed` creates the reference departments and one administrator using the `ADMIN_*` values in `.env`:
 
-| Role | Email | Default department |
-| --- | --- | --- |
-| Supervisor / Admin | `admin@labflow.test` | Haematology & Blood Transfusion |
-| Laboratory Scientist | `scientist@labflow.test` | Clinical Chemistry |
-| Laboratory Intern | `intern@labflow.test` | Haematology & Blood Transfusion |
-| Dispatch Staff | `dispatch@labflow.test` | Unassigned |
+```text
+Email:    admin@labflow.local        (ADMIN_EMAIL)
+Password: ChangeMe123!               (ADMIN_PASSWORD)
+Name:     Laboratory Administrator   (ADMIN_NAME)
+```
 
-Additional seed accounts: `scientist2@labflow.test`, `scientist3@labflow.test`, `intern2@labflow.test`, `dispatch2@labflow.test`.
+Sign in, open **Settings** and change the password immediately. Then open **Users** to create real staff accounts and assign each person a role:
 
-The login page also has one-click demo account selectors.
+| Role | Typical use |
+| --- | --- |
+| `ADMIN` | Supervisors and administrators; full access plus user management |
+| `SCIENTIST` | Bench scientists; can produce results |
+| `INTERN` | Sample registration and processing |
+| `DISPATCH` | Dispatch acknowledgement and patient collection |
+
+There are no pre-made staff accounts, sample records or patient data.
 
 ## Workflow
 
@@ -156,8 +174,8 @@ Permissions are defined once in [`lib/workflow.ts`](lib/workflow.ts). UI actions
 | `npm run db:generate` | Generate the Prisma client. |
 | `npm run db:migrate` | Create/apply migrations in development. |
 | `npm run db:deploy` | Apply committed migrations (production-safe). |
-| `npm run db:seed` | Reset and load fictional seed data. |
-| `npm run db:reset` | Drop the schema, re-run migrations and seed. |
+| `npm run db:seed` | Ensure departments exist and create the first administrator (safe to re-run). |
+| `npm run db:reset` | Drop the schema, re-run migrations and create the first administrator. |
 | `npm run db:studio` | Open Prisma Studio. |
 
 ## Database setup and migrations
@@ -178,11 +196,11 @@ npx prisma migrate dev --name describe_your_change
 # Regenerate the client
 npx prisma generate
 
-# Re-seed demo data (this deletes existing LabFlow data)
+# Ensure departments and the first administrator exist
 npm run db:seed
 ```
 
-The seed script is intentionally destructive: it clears samples, workflow events, dispatch records, users and departments before inserting fictional demo data.
+The seed script is safe to re-run. It upserts the five laboratory departments and creates an administrator only when none exists. It never deletes samples, events or accounts. Use `npm run db:reset` when you intentionally want to wipe the database and start over.
 
 ### Data model
 
@@ -220,7 +238,7 @@ lib/
   workflow.ts              Central workflow definitions and permissions
   validations.ts           Zod request schemas
   auth.ts / api-auth.ts    Auth.js config and server-side API guards
-prisma/                    Schema, migration and seed data
+prisma/                    Schema, migration and seed script
 ```
 
 Layering is intentional: pages read through `lib/data`, mutations call `lib/services`, and route handlers handle authentication, validation and HTTP responses.
@@ -249,7 +267,7 @@ All mutation endpoints validate input with Zod, resolve the signed-in user from 
 - Deactivated accounts cannot sign in, and API calls are re-checked against the database.
 - Workflow events are append-only: there is no update or delete API for audit history.
 - Patient names are optional, and the prototype does not store clinical test results.
-- Seed data is fictional and intended only for development.
+- The database starts empty except for reference departments and the administrator you configure.
 
 ## Troubleshooting
 
@@ -268,8 +286,8 @@ Stop the existing PostgreSQL service, or change the host port in `docker-compose
 **npm blocked Prisma/ESBuild install scripts**  
 On npm versions that require script approval, run `npm install-scripts approve @prisma/client prisma @prisma/engines esbuild` and then `npm rebuild`.
 
-**Need a clean demo database**  
-Run `npm run db:reset` (destructive) or `npm run db:seed`.
+**Need to start over with a clean database**  
+Run `npm run db:reset` (destructive). To only ensure departments and an administrator exist, run `npm run db:seed`.
 
 ## Out of scope
 

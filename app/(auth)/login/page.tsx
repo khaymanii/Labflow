@@ -4,14 +4,13 @@ import { FlaskConical, ShieldCheck, TimerReset, Workflow } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { LoginForm } from "@/components/auth/login-form";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const metadata: Metadata = {
   title: "Sign in",
 };
 
 type LoginPageProps = {
-  searchParams: Promise<{ callbackUrl?: string; inactive?: string }>;
+  searchParams: Promise<{ callbackUrl?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -121,15 +120,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Use your laboratory account to access the workflow.
             </p>
           </div>
-
-          {params.inactive === "1" ? (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>
-                Your account is inactive. Contact a laboratory administrator for
-                access.
-              </AlertDescription>
-            </Alert>
-          ) : null}
 
           <LoginForm callbackUrl={callbackUrl} />
 
