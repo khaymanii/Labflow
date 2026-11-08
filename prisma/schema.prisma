@@ -1,0 +1,128 @@
+// LabFlow database schema
+// PostgreSQL + Prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  INTERN
+  SCIENTIST
+  DISPATCH
+  ADMIN
+}
+
+enum SampleStatus {
+  REGISTERED
+  PROCESSING
+  RESULT_PRODUCED
+  AWAITING_DISPATCH
+  RECEIVED_AT_DISPATCH
+  COLLECTED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(INTERN)
+  departmentId String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  registeredSamples    Sample[]         @relation("RegisteredBy")
+  workflowEvents       WorkflowEvent[]
+  handedOverDispatches DispatchRecord[] @relation("HandedOverBy")
+  receivedDispatches   DispatchRecord[] @relation("ReceivedBy")
+  collectedDispatches  DispatchRecord[] @relation("CollectedBy")
+
+  @@index([departmentId])
+  @@index([role])
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users   User[]
+  samples Sample[]
+}
+
+model Sample {
+  id                String       @id @default(cuid())
+  accessionNumber   String       @unique
+  patientIdentifier String
+  patientName       String?
+  sampleType        String
+  requestedTest     String
+  status            SampleStatus @default(REGISTERED)
+  departmentId      String
+  registeredById    String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  registeredBy User       @relation("RegisteredBy", fields: [registeredById], references: [id], onDelete: Restrict)
+
+  workflowEvents WorkflowEvent[]
+  dispatchRecord DispatchRecord?
+
+  @@index([status])
+  @@index([departmentId])
+  @@index([patientIdentifier])
+  @@index([createdAt])
+  @@index([registeredById])
+}
+
+model WorkflowEvent {
+  id             String        @id @default(cuid())
+  sampleId       String
+  previousStatus SampleStatus?
+  newStatus      SampleStatus
+  performedById  String
+  note           String?
+  createdAt      DateTime      @default(now())
+
+  sample      Sample @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+  performedBy User   @relation(fields: [performedById], references: [id], onDelete: Restrict)
+
+  @@index([sampleId, createdAt])
+  @@index([performedById])
+}
+
+model DispatchRecord {
+  id             String    @id @default(cuid())
+  sampleId       String    @unique
+  handedOverById String
+  receivedById   String
+  collectedById  String?
+  dispatchedAt   DateTime
+  receivedAt     DateTime
+  collectedAt    DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  sample       Sample @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+  handedOverBy User   @relation("HandedOverBy", fields: [handedOverById], references: [id], onDelete: Restrict)
+  receivedBy   User   @relation("ReceivedBy", fields: [receivedById], references: [id], onDelete: Restrict)
+  collectedBy  User?  @relation("CollectedBy", fields: [collectedById], references: [id], onDelete: SetNull)
+
+  @@index([receivedAt])
+  @@index([collectedAt])
+  @@index([handedOverById])
+  @@index([receivedById])
+  @@index([collectedById])
+}
