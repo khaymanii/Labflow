@@ -150,13 +150,13 @@ export default async function SampleDetailPage({
               {transitions.length > 0 ? (
                 <WorkflowActions sampleId={sample.id} transitions={transitions} />
               ) : sample.status === "COLLECTED" ? (
-                <div className="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" />
+                <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary" />
                   <div>
-                    <p className="text-sm font-medium text-emerald-900">
+                    <p className="text-sm font-medium text-primary">
                       Workflow complete
                     </p>
-                    <p className="text-sm text-emerald-800">
+                    <p className="text-sm text-primary/80">
                       This result has been collected. No further workflow actions are
                       available.
                     </p>

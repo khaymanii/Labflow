@@ -1,4 +1,3 @@
-// @ts-expect-error Next.js processes global CSS imports at build time.
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 
@@ -14,7 +13,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f766e",
+  themeColor: "#b62020",
 };
 
 export default function RootLayout({

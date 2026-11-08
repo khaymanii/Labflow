@@ -104,7 +104,7 @@ export default async function DashboardPage() {
           label="Collected"
           value={data.counts.COLLECTED ?? 0}
           icon={CheckCircle2}
-          tone="emerald"
+          tone="primary"
           hint="Completed workflows"
           href="/samples?status=COLLECTED"
         />

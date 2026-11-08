@@ -19,7 +19,7 @@ export function SampleProgress({ status }: { status: SampleStatus }) {
               current
                 ? "border-primary/30 bg-primary/5"
                 : complete
-                  ? "border-emerald-200 bg-emerald-50/60"
+                  ? "border-primary/20 bg-primary/5"
                   : "border-dashed bg-muted/20",
             )}
           >
@@ -30,7 +30,7 @@ export function SampleProgress({ status }: { status: SampleStatus }) {
                   current
                     ? "border-primary bg-primary text-primary-foreground"
                     : complete
-                      ? "border-emerald-500 bg-emerald-500 text-white"
+                      ? "border-primary bg-primary text-primary-foreground"
                       : "border-slate-200 bg-white text-slate-400",
                 )}
               >
@@ -39,7 +39,7 @@ export function SampleProgress({ status }: { status: SampleStatus }) {
               <span
                 className={cn(
                   "text-xs font-medium leading-tight",
-                  current ? "text-primary" : complete ? "text-emerald-800" : "text-muted-foreground",
+                  current ? "text-primary" : complete ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 {STATUS_LABELS[step]}
@@ -50,7 +50,7 @@ export function SampleProgress({ status }: { status: SampleStatus }) {
                 Current stage
               </p>
             ) : complete ? (
-              <p className="mt-1.5 text-[11px] text-emerald-700">Completed</p>
+              <p className="mt-1.5 text-[11px] text-primary/80">Completed</p>
             ) : (
               <p className="mt-1.5 flex items-center gap-1 text-[11px] text-muted-foreground">
                 <Circle className="h-2 w-2" /> Pending

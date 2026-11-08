@@ -89,7 +89,7 @@ export default async function DispatchPage() {
           label="Collected today"
           value={data.collectedToday}
           icon={CheckCircle2}
-          tone="emerald"
+          tone="primary"
           hint="Closed workflows today"
         />
       </div>

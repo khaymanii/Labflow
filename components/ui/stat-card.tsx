@@ -9,7 +9,7 @@ type StatCardProps = {
   icon: LucideIcon;
   hint?: string;
   href?: string;
-  tone?: "default" | "blue" | "amber" | "cyan" | "emerald" | "violet";
+  tone?: "default" | "blue" | "amber" | "cyan" | "primary" | "violet";
 };
 
 const TONES: Record<NonNullable<StatCardProps["tone"]>, string> = {
@@ -17,7 +17,7 @@ const TONES: Record<NonNullable<StatCardProps["tone"]>, string> = {
   blue: "bg-sky-50 text-sky-600",
   amber: "bg-amber-50 text-amber-600",
   cyan: "bg-cyan-50 text-cyan-600",
-  emerald: "bg-emerald-50 text-emerald-600",
+  primary: "bg-primary/10 text-primary",
   violet: "bg-violet-50 text-violet-600",
 };
 

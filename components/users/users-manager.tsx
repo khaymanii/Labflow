@@ -187,7 +187,7 @@ export function UsersManager({
                   </TableCell>
                   <TableCell>
                     {user.isActive ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         Active
                       </span>
@@ -575,7 +575,7 @@ function EditUserDialog({
                   checked={isActive}
                   onChange={(event) => setIsActive(event.target.checked)}
                   disabled={isSelf}
-                  className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-teal-700"
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-primary"
                 />
                 <span>
                   <span className="block font-medium">Account active</span>

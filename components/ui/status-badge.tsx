@@ -25,8 +25,8 @@ const STATUS_STYLES: Record<SampleStatus, { badge: string; dot: string }> = {
     dot: "bg-cyan-500",
   },
   COLLECTED: {
-    badge: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    dot: "bg-emerald-500",
+    badge: "border-primary/20 bg-primary/5 text-primary",
+    dot: "bg-primary",
   },
 };
 
